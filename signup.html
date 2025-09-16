@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup</title>
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+  <form action="">
+    <div>
+      <h1>Signup</h1>
+    </div>
+    <div>
+      <label for="user">Username</label>
+      <input type="text" id="user" name="user" />
+      <span id="userError" class="error"></span>
+      <br />
+
+      <label for="pass">Password</label>
+      <input type="password" id="pass" name="pass" />
+      <span id="passError" class="error"></span>
+      <br />
+
+      <label for="cPass">Confirm Password</label>
+      <input type="password" id="cPass" name="cPass">
+      <span id="cPassError" class="error"></span>
+      <br />
+
+      <label for="mail">Email-ID</label>
+      <input type="email" id="mail" name="mail" />
+      <span id="mailError" class="error"></span>
+      <br />
+
+      <label for="num">Number</label>
+      <input type="number" id="num" name="num" />
+      <span id="numError" class="error"></span>
+      <br />
+
+      <div id="btns">
+        <button type="submit">Sign In</button>
+        <button type="button">Cancel</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    let form = document.querySelector("form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      // target inputs
+      let name = document.getElementById("user").value.trim();
+      let pass = document.getElementById("pass").value.trim();
+      let cpass = document.getElementById("cPass").value.trim();
+      let mail = document.getElementById("mail").value.trim();
+      let num = document.getElementById("num").value.trim();
+
+      // clear errors
+      document.getElementById("userError").innerText = "";
+      document.getElementById("mailError").innerText = "";
+      document.getElementById("passError").innerText = "";
+      document.getElementById("cPassError").innerText = "";
+      document.getElementById("numError").innerText = "";
+
+      let valid = true;
+
+      // username validation
+      if (name === "") {
+        document.getElementById("userError").innerText = "username is mandatory";
+        valid = false;
+      } else if (name.length < 3) {
+        document.getElementById("userError").innerText = "name should contain minimum 3 characters";
+        valid = false;
+      } else if (name.length > 15) {
+        document.getElementById("userError").innerText = "name should not exceed 15 characters";
+        valid = false;
+      }
+
+      // number validation
+      let numEr = /^[0-9]{10}$/;
+      if (num === "") {
+        document.getElementById("numError").innerText = "number is mandatory";
+        valid = false;
+      } else if (!num.match(numEr)) {
+        document.getElementById("numError").innerText = "enter valid 10 digit number";
+        valid = false;
+      }
+
+      // password validation
+      if (pass === "") {
+        document.getElementById("passError").innerText = "password is mandatory";
+        valid = false;
+      } else if (pass.length < 6 || pass.length > 15) {
+        document.getElementById("passError").innerText = "password must be between 6 and 15 characters";
+        valid = false;
+      }
+
+      // confirm password validation
+      if (cpass === "") {
+        document.getElementById("cPassError").innerText = "confirm password is mandatory";
+        valid = false;
+      } else if (cpass !== pass) {
+        document.getElementById("cPassError").innerText = "passwords do not match";
+        valid = false;
+      }
+
+      // email validation
+      let mailEr = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (mail === "") {
+        document.getElementById("mailError").innerText = "email is mandatory";
+        valid = false;
+      } else if (!mail.match(mailEr)) {
+        document.getElementById("mailError").innerText = "enter valid email Id";
+        valid = false;
+      }
+
+      // final
+      if (valid) {
+        let userData = {
+          username: name,
+          password: pass,
+          email: mail,
+          number: num,
+        };
+        localStorage.setItem("signupData", JSON.stringify(userData));
+        alert("Signup is Successful!");
+        location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

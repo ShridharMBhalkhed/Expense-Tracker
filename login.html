@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <form id="loginForm">
+    <div>
+      <h1>Login</h1>
+    </div>
+    <div>
+      <label for="user">Username</label>
+      <input type="text" name="user" id="user" required>
+      <br>
+      <label for="pass">Password</label>
+      <input type="password" name="pass" id="pass" required>
+      <br>
+      <div id="btns">
+        <button type="submit">Login</button>
+        <button type="button" onclick="window.location.href='signup.html'">Cancel</button>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    let form = document.getElementById("loginForm");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault(); // stop refresh
+
+      let name = document.getElementById("user").value.trim();
+      let pass = document.getElementById("pass").value.trim();
+
+      if (name === "" || pass === "") {
+        alert("Both fields are required!");
+        return;
+      }
+
+      // Get stored signup data
+      let signupData = JSON.parse(localStorage.getItem("signupData"));
+
+      if (!signupData) {
+        alert("No account found! Please signup first.");
+        return;
+      }
+
+      if (name === signupData.username && pass === signupData.password) {
+        localStorage.setItem("loginData", JSON.stringify({ username: name }));
+        alert("Login Successful!");
+        location.href = "tracker.html";
+      } else {
+        alert("Invalid username or password!");
+      }
+    });
+  </script>
+</body>
+</html>

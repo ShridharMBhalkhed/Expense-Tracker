@@ -1,0 +1,104 @@
+
+    /* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Background */
+body {
+  background: linear-gradient(135deg, #1d2671, #c33764);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Form container */
+form {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.25);
+  width: 320px;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+form:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* Heading */
+form h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #c33764;
+  letter-spacing: 1px;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+/* Focus effect */
+input:focus {
+  border-color: #c33764;
+  box-shadow: 0px 0px 8px rgba(195, 55, 100, 0.5);
+}
+
+/* Button container */
+#btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* Buttons */
+button {
+  width: 48%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+/* Login button */
+button:first-of-type {
+  background: #1d2671;
+  color: white;
+}
+
+/* Cancel button */
+button:last-of-type {
+  background: #c33764;
+  color: white;
+}
+
+/* Hover effect */
+button:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+  
