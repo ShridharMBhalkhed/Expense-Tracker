@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Dashboard</title>
+
+  <!-- Bootstrap 5.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      min-height: 100vh;
+      background: rgba(38, 32, 77, 0.95);
+      color: white;
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    .sidebar .nav-link {
+      color: #ddd;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color: #6b5fd6;
+      color: white;
+    }
+    .sidebar img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      border: 3px solid white;
+      cursor: pointer;
+    }
+
+    /* Profile options popup */
+    .profile-options {
+      position: absolute;
+      top: 130px;
+      background: #fff;
+      color: #000;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+      flex-direction: column;
+      width: 150px;
+      text-align: center;
+      z-index: 2000;
+    }
+    .profile-options button {
+      background: none;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .profile-options button:hover {
+      background: #f1f1f1;
+    }
+
+    /* Content */
+    .content {
+      padding: 40px;
+      margin-left: 26px;
+    }
+    .content-section {
+      display: none;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    .content-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Approval box */
+    .approval {
+      display: flex;
+      justify-content: space-between;
+      background: #f8f9fa;
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      border-left: 4px solid #6b5fd6;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .approval span { flex: 1; font-size: 14px; }
+    .approval button {
+      margin-left: 8px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+    .approval button:first-of-type { background: #667eea; }
+    .approval button:last-of-type { background: #e53e3e; }
+
+    /* Sidebar collapsed */
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+      position: absolute;
+      z-index: 1050;
+    }
+
+    /* Dark mode */
+    body.dark-mode {
+      background: #1e1e1e;
+      color: #e0e0e0;
+    }
+    body.dark-mode .sidebar {
+      background: #121212;
+    }
+    body.dark-mode .sidebar .nav-link {
+      color: #bbb;
+    }
+    body.dark-mode .sidebar .nav-link:hover,
+    body.dark-mode .sidebar .nav-link.active {
+      background-color: #333;
+    }
+    body.dark-mode .content-section {
+      background: #2a2a2a;
+      color: #eee;
+    }
+    body.dark-mode .approval {
+      background: #333;
+      border-left: 4px solid #9f7aea;
+    }
+    body.dark-mode .profile-options {
+      background: #2a2a2a;
+      color: #fff;
+    }
+    body.dark-mode .profile-options button:hover {
+      background: #444;
+    }
+
+    /* Theme toggle button */
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 1100;
+      transition: 0.3s;
+    }
+
+    /* Hamburger */
+    #menuToggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1200;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <div id="sidebar" class="col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center">
+      <img id="profileImage" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+      
+      <!-- Profile Options -->
+      <div id="profileOptions" class="profile-options">
+        <button id="addImageBtn">Add Image</button>
+        <button id="removeImageBtn">Remove Image</button>
+      </div>
+      
+      <!-- Hidden file input -->
+      <input type="file" id="imageUpload" accept="image/*" style="display:none;">
+
+      <nav class="nav flex-column w-100 px-3">
+        <a class="nav-link active" data-section="home" href="#"><i class="fa-solid fa-house"></i> Home</a>
+        <a class="nav-link" data-section="expenses" href="#"><i class="fa-solid fa-coins"></i> Expenses</a>
+        <a class="nav-link" data-section="teams" href="#"><i class="fa-solid fa-users"></i> Teams</a>
+        <a class="nav-link" data-section="approvals" href="#"><i class="fa-solid fa-square-check"></i> Approvals</a>
+        <a class="nav-link" data-section="reports" href="#"><i class="fa-solid fa-chart-bar"></i> Reports</a>
+        <a class="nav-link" data-section="support" href="#"><i class="fa-solid fa-phone"></i> Support</a>
+      </nav>
+    </div>
+
+    <!-- Main content -->
+    <div class="col content">
+      <div id="home" class="content-section active">
+        <h2>Welcome to Your Expense Dashboard</h2>
+        <p>Track expenses, manage teams, approve requests, and generate reports — all in one place!</p>
+      </div>
+
+      <div id="expenses" class="content-section">
+        <h2>New Expense</h2>
+        <div class="mb-3"><label>Amount</label><input type="number" id="amount" class="form-control"></div>
+        <div class="mb-3"><label>Date</label><input type="date" id="date" class="form-control"></div>
+        <div class="mb-3"><label>Category</label>
+          <select id="category" class="form-control">
+            <option value="">Select</option>
+            <option>Travel</option>
+            <option>Food</option>
+            <option>Office Supplies</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="mb-3"><label>Assign to Team Member</label><select id="assignedTo" class="form-control"></select></div>
+        <div class="mb-3"><label>Description</label><textarea id="description" class="form-control"></textarea></div>
+        <button class="btn btn-success" onclick="submitExpense()">Submit Expense for Approval</button>
+      </div>
+
+      <div id="teams" class="content-section">
+        <h2>Teams</h2>
+        <div class="mb-3"><label>Add Team Member</label><input type="text" id="teamMember" class="form-control"></div>
+        <button class="btn btn-primary" onclick="addTeamMember()">Add Member</button>
+        <h3>Team Members (<span id="memberCount">0</span>):</h3>
+        <ul id="teamList"></ul>
+      </div>
+
+      <div id="approvals" class="content-section">
+        <h2>Approvals</h2>
+        <div id="approvalList"></div>
+      </div>
+
+      <div id="reports" class="content-section">
+        <h2>Reports</h2>
+        <button class="btn btn-warning" onclick="generateReport()">Generate Report</button>
+        <div id="reportOutput"></div>
+      </div>
+
+      <div id="support" class="content-section">
+        <h2>Support</h2>
+        <div class="mb-3"><label>Your Name</label><input type="text" id="supportName" class="form-control"></div>
+        <div class="mb-3"><label>Your Message</label><textarea id="supportMessage" class="form-control"></textarea></div>
+        <button class="btn btn-info" onclick="sendSupport()">Send</button>
+        <p id="supportResponse" class="mt-2 fw-bold"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hamburger -->
+<button class="btn btn-dark" id="menuToggle">
+  <i class="fa-solid fa-xmark"></i>
+</button>
+
+<!-- Dark/Light Theme Toggle -->
+<button class="theme-toggle" id="themeToggle">
+  <i class="fa-solid fa-moon"></i>
+</button>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Sidebar toggle
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const menuIcon = menuToggle.querySelector("i");
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle("collapsed");
+    menuIcon.classList.toggle("fa-bars");
+    menuIcon.classList.toggle("fa-xmark");
+  });
+
+  // Dark mode
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+  themeToggle.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    const icon = themeToggle.querySelector("i");
+    if (body.classList.contains("dark-mode")) {
+      icon.classList.replace("fa-moon", "fa-sun");
+      themeToggle.style.background = "#f39c12";
+    } else {
+      icon.classList.replace("fa-sun", "fa-moon");
+      themeToggle.style.background = "#667eea";
+    }
+  });
+
+  // Profile image menu
+  const profileImage = document.getElementById("profileImage");
+  const profileOptions = document.getElementById("profileOptions");
+  const addImageBtn = document.getElementById("addImageBtn");
+  const removeImageBtn = document.getElementById("removeImageBtn");
+  const imageUpload = document.getElementById("imageUpload");
+
+  profileImage.addEventListener("click", () => {
+    profileOptions.style.display = profileOptions.style.display === "flex" ? "none" : "flex";
+  });
+
+  addImageBtn.addEventListener("click", () => {
+    imageUpload.click();
+    profileOptions.style.display = "none";
+  });
+
+  removeImageBtn.addEventListener("click", () => {
+    profileImage.src = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    localStorage.removeItem("profileImage");
+    profileOptions.style.display = "none";
+  });
+
+  imageUpload.addEventListener("change", () => {
+    const file = imageUpload.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        profileImage.src = e.target.result;
+        localStorage.setItem("profileImage", e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  window.addEventListener("load", () => {
+    const savedImage = localStorage.getItem("profileImage");
+    if (savedImage) profileImage.src = savedImage;
+  });
+
+  // Navigation between sections
+  const links = document.querySelectorAll('.nav-link');
+  links.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      links.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(link.dataset.section).classList.add('active');
+      if (link.dataset.section === "approvals") renderApprovals();
+    });
+  });
+
+  // Data
+  let pendingApproval = [];
+  let approvalExpenses = [];
+  let teamMembers = [];
+
+  function saveData() {
+    localStorage.setItem("teamMember", JSON.stringify(teamMembers));
+    localStorage.setItem("pendingApproval", JSON.stringify(pendingApproval));
+    localStorage.setItem("approvalExpenses", JSON.stringify(approvalExpenses));
+  }
+  function loadData() {
+    teamMembers = JSON.parse(localStorage.getItem("teamMember")) || [];
+    approvalExpenses = JSON.parse(localStorage.getItem("approvalExpenses")) || [];
+    pendingApproval = JSON.parse(localStorage.getItem("pendingApproval")) || [];
+    renderTeam();
+    renderApprovals();
+  }
+  window.onload = () => { loadData(); };
+
+  function submitExpense() {
+    let amount = document.getElementById("amount").value;
+    let date = document.getElementById("date").value;
+    let assignedTo = document.getElementById("assignedTo").value;
+    let category = document.getElementById("category").value;
+    let description = document.getElementById("description").value;
+    if (!amount || !date || !assignedTo || !category || !description) { alert("Please fill all fields"); return; }
+    let expense = { amount: parseFloat(amount), date, assignedTo, category, description };
+    pendingApproval.push(expense);
+    saveData();
+    alert("Expense submitted successfully");
+    document.getElementById("amount").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("description").value = "";
+  }
+
+  function addTeamMember() {
+    let member = document.getElementById("teamMember").value;
+    if (!member) { alert("Add member"); return; }
+    teamMembers.push(member);
+    document.getElementById("teamMember").value = "";
+    saveData();
+    renderTeam();
+  }
+
+  function renderTeam() {
+    let teamList = document.getElementById("teamList");
+    let assignedTo = document.getElementById("assignedTo");
+    teamList.innerHTML = "";
+    assignedTo.innerHTML = "<option value=''>Select</option>";
+    teamMembers.forEach(member => {
+      let li = document.createElement("li");
+      li.textContent = member;
+      teamList.appendChild(li);
+      let opt = document.createElement("option");
+      opt.value = member;
+      opt.textContent = member;
+      assignedTo.appendChild(opt);
+    });
+    document.getElementById("memberCount").textContent = teamMembers.length;
+  }
+
+  function renderApprovals() {
+    let approvalList = document.getElementById("approvalList");
+    approvalList.innerHTML = "";
+    if (pendingApproval.length === 0) {
+      approvalList.innerHTML = "<p>No pending approvals.</p>";
+      return;
+    }
+    pendingApproval.forEach((exp, index) => {
+      let div = document.createElement("div");
+      div.className = "approval";
+      div.innerHTML = `<span>${exp.date} - ${exp.category} - ₹${exp.amount} (${exp.assignedTo})</span>`;
+      let approveBtn = document.createElement("button");
+      approveBtn.textContent = "Approve";
+      approveBtn.className = "btn btn-sm btn-success";
+      approveBtn.onclick = () => approveExpense(index);
+      let rejectBtn = document.createElement("button");
+      rejectBtn.textContent = "Reject";
+      rejectBtn.className = "btn btn-sm btn-danger";
+      rejectBtn.onclick = () => rejectExpense(index);
+      div.appendChild(approveBtn);
+      div.appendChild(rejectBtn);
+      approvalList.appendChild(div);
+    });
+  }
+
+  function approveExpense(index) {
+    approvalExpenses.push(pendingApproval[index]);
+    pendingApproval.splice(index, 1);
+    saveData();
+    renderApprovals();
+  }
+  function rejectExpense(index) {
+    pendingApproval.splice(index, 1);
+    saveData();
+    renderApprovals();
+  }
+
+  function generateReport() {
+    let output = document.getElementById("reportOutput");
+    if (approvalExpenses.length === 0) {
+      output.innerHTML = "<p>No approved expenses yet.</p>";
+      return;
+    }
+    let total = approvalExpenses.reduce((sum, e) => sum + e.amount, 0);
+    let categories = {};
+    approvalExpenses.forEach(e => { categories[e.category] = (categories[e.category] || 0) + e.amount; });
+    let reportHtml = `<h4>Total Approved: ₹${total}</h4><ul>`;
+    for (let cat in categories) { reportHtml += `<li>${cat}: ₹${categories[cat]}</li>`; }
+    reportHtml += "</ul>";
+    output.innerHTML = reportHtml;
+  }
+
+  function sendSupport() {
+    let name = document.getElementById("supportName").value;
+    let message = document.getElementById("supportMessage").value;
+    if (!name || !message) { alert("Please fill in all fields"); return; }
+    document.getElementById("supportResponse").textContent = "Thank you, " + name + "! Our team will respond shortly.";
+    document.getElementById("supportName").value = "";
+    document.getElementById("supportMessage").value = "";
+  }
+</script>
+</body>
+</html>
